@@ -1,0 +1,22 @@
+digraph pipeline {
+    node [shape=box, style=rounded];
+    
+    InputImage -> BarcodeDetector -> DrawPredBoxes -> CropImage -> SmartRotate -> PyzbarDecode -> DisplayResults -> OutputImage
+    
+    InputImage [label="Input Image"]
+    BarcodeDetector [label="BarcodeDetector"]
+    DrawPredBoxes [label="Draw Pred Boxes"]
+    CropImage [label="Crop Image"]
+    SmartRotate [label="Smart Rotate"]
+    PyzbarDecode [label="Pyzbar Decode"]
+    DisplayResults [label="Display Results"]
+    OutputImage [label="Output Image"]
+
+    InputImage -> BarcodeDetector
+    BarcodeDetector -> DrawPredBoxes [label="Faster RCNN Output"]
+    DrawPredBoxes -> CropImage [label="Bounding Boxes"]
+    CropImage -> SmartRotate [label="Cropped Image"]
+    SmartRotate -> PyzbarDecode [label="Rotated Image"]
+    PyzbarDecode -> DisplayResults [label="Decoded Barcode"]
+    DisplayResults -> OutputImage [label="Final Result"]
+}
