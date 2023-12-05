@@ -6,10 +6,11 @@ import matplotlib.pyplot as plt
 import cv2
 import numpy as np
 
+
 def pipeline_code(img):
     model_path = 'baseline+rot.pth'
     detector = BarcodeDetector(model_path)
-     # faster rcnn output
+    # faster rcnn output
     pred = detector.infer(img)
     print("Faster RCNN output:")
     print(pred)
@@ -36,7 +37,7 @@ def pipeline_code(img):
     decoded = "No barcode detected"
     if barcodes:
         print(barcodes)
-        decoded = barcodes[0].data.decode("utf-8")
+        decoded = barcodes[0].data.decode("utf-8") + " (" + barcodes[0].type + ")"
     print(decoded)
     print()
 
@@ -68,13 +69,14 @@ def pipeline_code(img):
     plt.close()
     return img
 
+
 def live_inference(detector):
     live = True
 
     cap = cv2.VideoCapture(0)
     # set buffer size to 1 to reduce latency
     cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
-
+    paused = False
     while cap.isOpened():
         ret, frame = cap.read()
         key = cv2.waitKey(1)
@@ -84,6 +86,10 @@ def live_inference(detector):
         # toggle live variable
         if key & 0xFF == ord('l'):
             live = not live
+        
+        # pause if pressed P
+        if key & 0xFF == ord('p'):
+            paused = not paused
 
         # temp live if pressed space
         temp_live = key & 0xFF == ord(' ')
@@ -91,7 +97,11 @@ def live_inference(detector):
         if live or temp_live:
             # predictions = detector.infer(frame)
             # frame = draw_pred_boxes(frame, predictions)
+            time0 = cv2.getTickCount()
             frame = pipeline_code(frame)
+            time1 = cv2.getTickCount()
+            fps = cv2.getTickFrequency() / (time1 - time0)
+            print("FPS: ", fps)
 
         cv2.imshow('Live Inference', frame)
 
@@ -100,6 +110,7 @@ def live_inference(detector):
 
     cap.release()
     cv2.destroyAllWindows()
+
 
 if __name__ == '__main__':
     model_path = 'baseline+rot.pth'

@@ -48,7 +48,8 @@ def live_inference(detector):
 
         if live or temp_live:
             predictions = detector.infer(frame)
-            frame = draw_pred_boxes(frame, predictions)
+            if predictions:
+                frame = draw_pred_boxes(frame, predictions)
 
         cv2.imshow('Live Inference', frame)
 
